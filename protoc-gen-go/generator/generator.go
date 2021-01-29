@@ -31,11 +31,11 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/protoc-gen-go/generator/internal/remap"
+	"github.com/o-kit/netrpc/proto"
+	"github.com/o-kit/netrpc/protoc-gen-go/generator/internal/remap"
 
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	"github.com/o-kit/netrpc/protoc-gen-go/descriptor"
+	plugin "github.com/o-kit/netrpc/protoc-gen-go/plugin"
 )
 
 func init() {
@@ -2113,16 +2113,16 @@ func (g *Generator) generateSetters(mc *msgCtx, topLevelFields []topLevelField) 
 func (g *Generator) generateCommonMethods(mc *msgCtx) {
 	// Reset, String and ProtoMessage methods.
 	g.P("func (m *", mc.goName, ") Reset() { *m = ", mc.goName, "{} }")
-	// g.P("func (m *", mc.goName, ") String() string { return ", g.Pkg["proto"], ".CompactTextString(m) }")
-	// g.P("func (*", mc.goName, ") ProtoMessage() {}")
-	// var indexes []string
-	// for m := mc.message; m != nil; m = m.parent {
-	// 	indexes = append([]string{strconv.Itoa(m.index)}, indexes...)
-	// }
-	// g.P("func (*", mc.goName, ") Descriptor() ([]byte, []int) {")
-	// g.P("return ", g.file.VarName(), ", []int{", strings.Join(indexes, ", "), "}")
-	// g.P("}")
-	// g.P()
+	g.P("func (m *", mc.goName, ") String() string { return ", g.Pkg["proto"], ".CompactTextString(m) }")
+	g.P("func (*", mc.goName, ") ProtoMessage() {}")
+	var indexes []string
+	for m := mc.message; m != nil; m = m.parent {
+		indexes = append([]string{strconv.Itoa(m.index)}, indexes...)
+	}
+	g.P("func (*", mc.goName, ") Descriptor() ([]byte, []int) {")
+	g.P("return ", g.file.VarName(), ", []int{", strings.Join(indexes, ", "), "}")
+	g.P("}")
+	g.P()
 	// TODO: Revisit the decision to use a XXX_WellKnownType method
 	// if we change proto.MessageName to work with multiple equivalents.
 	if mc.message.file.GetPackage() == "google.protobuf" && wellKnownTypes[mc.message.GetName()] {

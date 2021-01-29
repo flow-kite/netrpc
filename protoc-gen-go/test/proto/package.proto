@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package proto;
+
+service PackageService {
+
+    rpc CreatePackage(CreatePackageReq) returns (CreatePackageResp);
+
+}
+
+message CreatePackageReq {
+    // 拣货号
+    string picking_code = 4;
+    // 仓库编号
+    int64 warehouse_id = 5;
+    // 库区编号
+    int64 area_id = 3;
+}
+
+message CreatePackageResp {
+    string package_code = 1;
+}

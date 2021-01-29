@@ -16,8 +16,8 @@ import (
 	"strconv"
 	"strings"
 
-	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
-	"github.com/golang/protobuf/protoc-gen-go/generator"
+	pb "github.com/o-kit/netrpc/protoc-gen-go/descriptor"
+	"github.com/o-kit/netrpc/protoc-gen-go/generator"
 )
 
 // generatedCodeVersion indicates a version of the generated code.
@@ -32,8 +32,8 @@ const (
 	contextPkgPath    = "context"
 	grpcPkgPath       = "google.golang.org/grpc"
 	kitContextPkgPath = "github.com/o-kit/micro-kit/misc/context"
-	mservicePkgPath   = "github.com/o-kit/micro-kit/mservice"
-	commonPkgPath     = "github.com/o-kit/micro-kit/mservice/proto/common"
+	mservicePkgPath   = "github.com/o-kit/micro-kit/dist/mservice"
+	commonPkgPath     = "github.com/o-kit/micro-kit/dist/proto/common"
 )
 
 func init() {
@@ -190,6 +190,7 @@ func (g *grpc) generateService(file *generator.FileDescriptor, service *pb.Servi
 	g.P()
 
 	// TODO add we needed 2. 添加client函数 - 集合了balancer 、resolver、grpcClientConn(important)
+	g.P("// Start 创建client - 集合了balancer 、resolver、grpcClientConn(important) ...")
 	g.P("var ", unexport(servName), "ClientOnce sync.Once")
 	g.P("var ", unexport(servName), "ClientInstance ", servName, "Client")
 	g.P()
@@ -208,7 +209,7 @@ func (g *grpc) generateService(file *generator.FileDescriptor, service *pb.Servi
 	g.P("func New", servName, " () (", servName, "Client, error) {")
 	g.P("cfg := mservice.DefaultClientConfig()")
 	g.P("cfg.Desc = Option", servName)
-	g.P("cli, err := mservice.NewClient(Service", servName, ", cfg)")
+	g.P("cli, err := mservice.NewClientEx(Service", servName, ", cfg)")
 	g.P("if err != nil {")
 	g.P("return nil, err")
 	g.P("}")
@@ -267,12 +268,16 @@ func (g *grpc) generateService(file *generator.FileDescriptor, service *pb.Servi
 	g.P()
 
 	// TODO 3. 注册grpc服务器 - 服务启动的时候注册进去
-	g.P("func Register", servName, "GRPC(s ", servName, "GRPCRegister) {")
+	g.P("func Register", servName, "Grpc(s ", servName, "GrpcRegister) {")
 	g.P("s.RegisterService(Service", servName, ", ServiceMethod", servName, ")")
 	g.P("Register", servName, "Server(s.GetServer(), s)")
 	g.P("}")
 
 	g.GenWebApi(file, service)
+	g.P()
+	g.P("// End 创建client - 集合了balancer 、resolver、grpcClientConn(important) ...")
+	g.P()
+	g.P()
 
 	// Server handler implementations.
 	var handlerNames []string

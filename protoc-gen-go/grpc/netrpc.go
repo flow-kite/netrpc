@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	generator.RegisterPlugin(new(netrpcPlugin))
+	// generator.RegisterPlugin(new(netrpcPlugin))
 }
 
 type netrpcPlugin struct {
